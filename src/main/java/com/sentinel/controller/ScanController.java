@@ -12,7 +12,7 @@ import com.sentinel.model.Scan;
 import com.sentinel.repository.ScanRepository;
 
 import java.util.List;
-
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/scans")
 public class ScanController {

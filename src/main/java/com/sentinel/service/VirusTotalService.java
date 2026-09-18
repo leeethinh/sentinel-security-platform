@@ -54,9 +54,9 @@ public class VirusTotalService {
 
             if (response.statusCode() == 404) {
                 findings.add(new SecurityFinding(
-                        "THREAT_INTELLIGENCE",
+                        "THREAT_ANALYSIS",
                         "INFO",
-                        "No existing VirusTotal report was found for this URL."
+                        "No existing threat-intelligence report was found for this URL."
                 ));
 
                 return findings;
@@ -64,9 +64,9 @@ public class VirusTotalService {
 
             if (response.statusCode() != 200) {
                 findings.add(new SecurityFinding(
-                        "THREAT_INTELLIGENCE",
+                        "THREAT_ANALYSIS",
                         "INFO",
-                        "VirusTotal reputation data could not be retrieved."
+                        "Threat-intelligence data could not be retrieved."
                 ));
 
                 return findings;
@@ -88,41 +88,42 @@ public class VirusTotalService {
 
             if (malicious > 0) {
                 findings.add(new SecurityFinding(
-                        "VIRUSTOTAL",
+                        "THREAT_ANALYSIS",
                         "HIGH",
                         malicious +
-                                " VirusTotal security engines flagged this URL as malicious."
+                                " security engines flagged this URL as malicious."
                 ));
             }
 
             if (suspicious > 0) {
                 findings.add(new SecurityFinding(
-                        "VIRUSTOTAL",
+                        "THREAT_ANALYSIS",
                         "WARNING",
                         suspicious +
-                                " VirusTotal security engines flagged this URL as suspicious."
+                                " security engines flagged this URL as suspicious."
                 ));
             }
 
             if (malicious == 0 && suspicious == 0) {
                 findings.add(new SecurityFinding(
-                        "VIRUSTOTAL",
+                        "THREAT_ANALYSIS",
                         "INFO",
-                        "No malicious or suspicious detections were reported in the available VirusTotal analysis."
+                        "No known malicious or suspicious indicators were detected by available threat-intelligence sources."
                 ));
             }
 
         } catch (Exception exception) {
 
             findings.add(new SecurityFinding(
-                    "THREAT_INTELLIGENCE",
+                    "THREAT_ANALYSIS",
                     "INFO",
-                    "VirusTotal analysis could not be completed."
+                    "Threat analysis could not be completed."
             ));
         }
 
         return findings;
     }
+
     public List<SecurityFinding> analyzeFileHash(String sha256) {
 
         List<SecurityFinding> findings = new ArrayList<>();
@@ -144,9 +145,9 @@ public class VirusTotalService {
 
             if (response.statusCode() == 404) {
                 findings.add(new SecurityFinding(
-                        "VIRUSTOTAL_FILE",
+                        "THREAT_ANALYSIS",
                         "INFO",
-                        "No existing VirusTotal report was found for this file hash."
+                        "No existing threat-intelligence report was found for this file hash."
                 ));
 
                 return findings;
@@ -154,9 +155,9 @@ public class VirusTotalService {
 
             if (response.statusCode() != 200) {
                 findings.add(new SecurityFinding(
-                        "THREAT_INTELLIGENCE",
+                        "THREAT_ANALYSIS",
                         "INFO",
-                        "VirusTotal file reputation data could not be retrieved."
+                        "File threat-intelligence data could not be retrieved."
                 ));
 
                 return findings;
@@ -178,36 +179,36 @@ public class VirusTotalService {
 
             if (malicious > 0) {
                 findings.add(new SecurityFinding(
-                        "VIRUSTOTAL_FILE",
+                        "THREAT_ANALYSIS",
                         "HIGH",
                         malicious +
-                                " VirusTotal security engines flagged this file as malicious."
+                                " security engines flagged this file as malicious."
                 ));
             }
 
             if (suspicious > 0) {
                 findings.add(new SecurityFinding(
-                        "VIRUSTOTAL_FILE",
+                        "THREAT_ANALYSIS",
                         "WARNING",
                         suspicious +
-                                " VirusTotal security engines flagged this file as suspicious."
+                                " security engines flagged this file as suspicious."
                 ));
             }
 
             if (malicious == 0 && suspicious == 0) {
                 findings.add(new SecurityFinding(
-                        "VIRUSTOTAL_FILE",
+                        "THREAT_ANALYSIS",
                         "INFO",
-                        "No malicious or suspicious detections were reported in the available VirusTotal analysis."
+                        "No known malicious or suspicious indicators were detected by available threat-intelligence sources."
                 ));
             }
 
         } catch (Exception exception) {
 
             findings.add(new SecurityFinding(
-                    "THREAT_INTELLIGENCE",
+                    "THREAT_ANALYSIS",
                     "INFO",
-                    "VirusTotal file analysis could not be completed."
+                    "File threat analysis could not be completed."
             ));
         }
 
