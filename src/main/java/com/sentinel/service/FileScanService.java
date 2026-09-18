@@ -9,14 +9,22 @@ import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.HexFormat;
 import java.util.List;
+import com.sentinel.model.Scan;
+import com.sentinel.repository.ScanRepository;
+import java.time.LocalDateTime;
 
 @Service
 public class FileScanService {
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024;
     private final VirusTotalService virusTotalService;
+    private final ScanRepository scanRepository;
 
-    public FileScanService(VirusTotalService virusTotalService) {
+    public FileScanService(
+            VirusTotalService virusTotalService,
+            ScanRepository scanRepository) {
+
         this.virusTotalService = virusTotalService;
+        this.scanRepository = scanRepository;
     }
 
     public FileScanResult scan(MultipartFile file) {
@@ -29,6 +37,7 @@ public class FileScanService {
                     "WARNING",
                     "The uploaded file is empty."
             ));
+            saveScan(file.getOriginalFilename(), findings);
 
             return new FileScanResult(
                     file.getOriginalFilename(),
@@ -45,7 +54,7 @@ public class FileScanService {
                     "BLOCKED",
                     "File exceeds Sentinel's 10 MB upload limit."
             ));
-
+            saveScan(file.getOriginalFilename(), findings);
             return new FileScanResult(
                     file.getOriginalFilename(),
                     file.getSize(),
@@ -59,6 +68,7 @@ public class FileScanService {
             findings.addAll(
                     virusTotalService.analyzeFileHash(sha256)
             );
+            saveScan(file.getOriginalFilename(), findings);
             return new FileScanResult(
                     file.getOriginalFilename(),
                     file.getSize(),
@@ -74,7 +84,7 @@ public class FileScanService {
                     "WARNING",
                     "Sentinel could not process the uploaded file."
             ));
-
+            saveScan(file.getOriginalFilename(), findings);
             return new FileScanResult(
                     file.getOriginalFilename(),
                     file.getSize(),
@@ -104,5 +114,37 @@ public class FileScanService {
         byte[] hash = digest.digest();
 
         return HexFormat.of().formatHex(hash);
+    }
+    private void saveScan(
+            String fileName,
+            List<SecurityFinding> findings) {
+
+        String severity = determineSeverity(findings);
+
+        Scan scan = new Scan(
+                "FILE",
+                fileName,
+                severity,
+                LocalDateTime.now()
+        );
+
+        scanRepository.save(scan);
+    }
+
+    private String determineSeverity(
+            List<SecurityFinding> findings) {
+
+        if (findings.stream()
+                .anyMatch(f -> "HIGH".equalsIgnoreCase(f.getSeverity())
+                        || "BLOCKED".equalsIgnoreCase(f.getSeverity()))) {
+            return "HIGH";
+        }
+
+        if (findings.stream()
+                .anyMatch(f -> "WARNING".equalsIgnoreCase(f.getSeverity()))) {
+            return "WARNING";
+        }
+
+        return "INFO";
     }
 }
