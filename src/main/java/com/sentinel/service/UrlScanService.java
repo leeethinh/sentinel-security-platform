@@ -1,7 +1,9 @@
 package com.sentinel.service;
 
+import com.sentinel.analyzer.UrlRiskAnalyzer;
 import com.sentinel.dto.SecurityFinding;
 import com.sentinel.dto.UrlScanResult;
+import com.sentinel.security.UrlSafetyValidator;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
@@ -9,31 +11,50 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class UrlScanService {
+
+    private final UrlRiskAnalyzer urlRiskAnalyzer;
+    private final UrlSafetyValidator urlSafetyValidator;
 
     private final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(5))
             .followRedirects(HttpClient.Redirect.NORMAL)
             .build();
 
+    public UrlScanService(
+            UrlRiskAnalyzer urlRiskAnalyzer,
+            UrlSafetyValidator urlSafetyValidator) {
+
+        this.urlRiskAnalyzer = urlRiskAnalyzer;
+        this.urlSafetyValidator = urlSafetyValidator;
+    }
+
     public UrlScanResult scan(String url) {
 
         boolean https = url.toLowerCase().startsWith("https://");
-        List<SecurityFinding> findings = new ArrayList<>();
 
-        // Security check #1: HTTPS
-        if (!https) {
+        List<SecurityFinding> findings =
+                urlRiskAnalyzer.analyze(url);
+        if (!urlSafetyValidator.isSafe(url)) {
+
             findings.add(new SecurityFinding(
-                    "HTTPS",
-                    "WARNING",
-                    "Website does not use HTTPS."
+                    "UNSAFE_DESTINATION",
+                    "BLOCKED",
+                    "Sentinel blocked this URL because it targets an invalid, local, or private network destination."
             ));
-        }
 
+            return new UrlScanResult(
+                    url,
+                    false,
+                    https,
+                    0,
+                    0,
+                    findings
+            );
+        }
         long startTime = System.nanoTime();
 
         try {
@@ -52,7 +73,6 @@ public class UrlScanService {
             long responseTime =
                     (System.nanoTime() - startTime) / 1_000_000;
 
-            // Security check #2: HTTP errors
             if (response.statusCode() >= 400) {
                 findings.add(new SecurityFinding(
                         "HTTP_STATUS",
