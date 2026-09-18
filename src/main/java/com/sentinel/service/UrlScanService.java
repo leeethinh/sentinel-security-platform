@@ -18,6 +18,7 @@ public class UrlScanService {
 
     private final UrlRiskAnalyzer urlRiskAnalyzer;
     private final UrlSafetyValidator urlSafetyValidator;
+    private final VirusTotalService virusTotalService;
 
     private final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(5))
@@ -26,10 +27,12 @@ public class UrlScanService {
 
     public UrlScanService(
             UrlRiskAnalyzer urlRiskAnalyzer,
-            UrlSafetyValidator urlSafetyValidator) {
+            UrlSafetyValidator urlSafetyValidator,
+            VirusTotalService virusTotalService) {
 
         this.urlRiskAnalyzer = urlRiskAnalyzer;
         this.urlSafetyValidator = urlSafetyValidator;
+        this.virusTotalService = virusTotalService;
     }
 
     public UrlScanResult scan(String url) {
@@ -55,6 +58,9 @@ public class UrlScanService {
                     findings
             );
         }
+        findings.addAll(
+                virusTotalService.analyze(url)
+        );
         long startTime = System.nanoTime();
 
         try {
