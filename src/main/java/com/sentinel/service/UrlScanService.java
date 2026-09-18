@@ -14,9 +14,8 @@ import java.time.Duration;
 import java.util.List;
 import com.sentinel.model.Scan;
 import com.sentinel.repository.ScanRepository;
-
 import java.time.LocalDateTime;
-
+import com.sentinel.util.UrlNormalizer;
 @Service
 public class UrlScanService {
 
@@ -24,6 +23,8 @@ public class UrlScanService {
     private final UrlSafetyValidator urlSafetyValidator;
     private final VirusTotalService virusTotalService;
     private final ScanRepository scanRepository;
+    private final UrlNormalizer urlNormalizer;
+
     private final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(5))
             .followRedirects(HttpClient.Redirect.NORMAL)
@@ -33,16 +34,18 @@ public class UrlScanService {
             UrlRiskAnalyzer urlRiskAnalyzer,
             UrlSafetyValidator urlSafetyValidator,
             VirusTotalService virusTotalService,
-            ScanRepository scanRepository) {
+            ScanRepository scanRepository,
+            UrlNormalizer urlNormalizer) {
 
         this.urlRiskAnalyzer = urlRiskAnalyzer;
         this.urlSafetyValidator = urlSafetyValidator;
         this.virusTotalService = virusTotalService;
         this.scanRepository = scanRepository;
+        this.urlNormalizer = urlNormalizer;
     }
 
     public UrlScanResult scan(String url) {
-
+        url = urlNormalizer.normalize(url);
         boolean https = url.toLowerCase().startsWith("https://");
 
         List<SecurityFinding> findings =

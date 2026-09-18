@@ -192,7 +192,6 @@ function App() {
             <section className="card">
 
               <div className="card-number">
-                01
               </div>
 
               <h3>URL Analysis</h3>
@@ -202,23 +201,30 @@ function App() {
                 reputation data.
               </p>
 
-              <input
-                  type="text"
-                  placeholder="https://example.com"
-                  value={url}
-                  onChange={(event) =>
-                      setUrl(event.target.value)
-                  }
-              />
-
-              <button
-                  onClick={analyzeUrl}
-                  disabled={urlLoading || !url.trim()}
+              <form
+                  onSubmit={(event) => {
+                    event.preventDefault()
+                    analyzeUrl()
+                  }}
               >
-                {urlLoading
-                    ? 'Analyzing...'
-                    : 'Analyze URL'}
-              </button>
+                <input
+                    type="text"
+                    placeholder="https://example.com"
+                    value={url}
+                    onChange={(event) =>
+                        setUrl(event.target.value)
+                    }
+                />
+
+                <button
+                    type="submit"
+                    disabled={urlLoading || !url.trim()}
+                >
+                  {urlLoading
+                      ? 'Analyzing...'
+                      : 'Analyze URL'}
+                </button>
+              </form>
 
               {/* ERROR */}
               {urlError && (
@@ -388,7 +394,6 @@ function App() {
             <section className="card">
 
               <div className="card-number">
-                02
               </div>
 
               <h3>File Analysis</h3>
@@ -398,31 +403,38 @@ function App() {
                 threat intelligence.
               </p>
 
-              <label className="file-input">
-
-                <input
-                    type="file"
-                    onChange={(event) =>
-                        setFile(
-                            event.target.files?.[0] ?? null
-                        )
-                    }
-                />
-
-                {file
-                    ? file.name
-                    : 'Choose a file'}
-
-              </label>
-
-              <button
-                  onClick={analyzeFile}
-                  disabled={!file || fileLoading}
+              <form
+                  onSubmit={(event) => {
+                    event.preventDefault()
+                    analyzeFile()
+                  }}
               >
-                {fileLoading
-                    ? 'Analyzing...'
-                    : 'Analyze File'}
-              </button>
+                <label className="file-input">
+
+                  <input
+                      type="file"
+                      onChange={(event) =>
+                          setFile(
+                              event.target.files?.[0] ?? null
+                          )
+                      }
+                  />
+
+                  {file
+                      ? file.name
+                      : 'Choose a file'}
+
+                </label>
+
+                <button
+                    type="submit"
+                    disabled={!file || fileLoading}
+                >
+                  {fileLoading
+                      ? 'Analyzing...'
+                      : 'Analyze File'}
+                </button>
+              </form>
               {fileError && (
                   <div className="result error-result">
                     <strong>Analysis Error</strong>

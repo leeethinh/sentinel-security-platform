@@ -40,14 +40,14 @@ input {
 
 .header h1 {
   margin: 0;
-  font-size: 25px;
+  font-size: 30px;
   letter-spacing: -0.5px;
 }
 
 .header p {
   margin: 4px 0 0;
   color: #737e8d;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .status {
@@ -140,7 +140,7 @@ input {
 
 .card h3 {
   margin: 0 0 10px;
-  font-size: 21px;
+  font-size: 27px;
 }
 
 .card > p {
@@ -150,7 +150,7 @@ input {
   color: #7f8997;
 
   line-height: 1.5;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 /* =========================
